@@ -1,0 +1,2304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Dispatch Discrepancy Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        header {
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            border-radius: 8px 8px 0 0 !important;
+        }
+        .table th {
+            background-color: #f1f1f1;
+            position: sticky;
+            top: 0;
+        }
+        .short-units {
+            background-color: #ffc7ce;
+        }
+        .extra-units {
+            background-color: #ffeb9c;
+        }
+        .unresolved {
+            font-weight: bold;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .brand-badge {
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .filter-section {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="text-center py-4 bg-success text-white">
+            <h1>Enhanced Dispatch Discrepancy Tracker</h1>
+            <p class="mb-0">Comprehensive tracking and analysis of dispatch discrepancies</p>
+        </header>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab">Data Entry</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="trends-tab" data-bs-toggle="tab" data-bs-target="#trends" type="button" role="tab">Trend Analysis</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab">Saved Reports</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">Settings</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- Data Entry Tab -->
+            <div class="tab-pane fade show active" id="data" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h3>New Discrepancy Entry</h3>
+                                <button class="btn btn-sm btn-light" onclick="clearForm()">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Clear Form
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <form id="discrepancyForm">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="olpn" class="form-label">OLPN <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="olpn" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="brand" class="form-label">Brand <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <select class="form-select" id="brand" required>
+                                                    <option value="">Select Brand</option>
+                                                    <!-- Brands will be populated by JavaScript -->
+                                                </select>
+                                                <button class="btn btn-outline-secondary" type="button" onclick="showAddBrandModal()">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" id="date" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="week" class="form-label">Week <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="week" required>
+                                                <option value="">Select Week</option>
+                                                <!-- Weeks will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="month" class="form-label">Month <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="month" required>
+                                                <option value="">Select Month</option>
+                                                <!-- Months will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="expectedUnits" class="form-label">Expected Units <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="expectedUnits" min="1" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="shortUnits" class="form-label">Short Units</label>
+                                            <input type="number" class="form-control" id="shortUnits" min="0" value="0">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="extraUnits" class="form-label">Extra Units</label>
+                                            <input type="number" class="form-control" id="extraUnits" min="0" value="0">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="picker" class="form-label">Picker <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="picker" list="pickerList" required>
+                                            <datalist id="pickerList">
+                                                <!-- Options will be loaded from existing data -->
+                                            </datalist>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="auditor" class="form-label">Auditor <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="auditor" list="auditorList" required>
+                                            <datalist id="auditorList">
+                                                <!-- Options will be loaded from existing data -->
+                                            </datalist>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="adjusted" class="form-label">Adjusted (Y/N)</label>
+                                            <select class="form-select" id="adjusted">
+                                                <option value="NO">NO</option>
+                                                <option value="YES">YES</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="caseResolved" class="form-label">Case Resolved</label>
+                                            <select class="form-select" id="caseResolved">
+                                                <option value="NO">NO</option>
+                                                <option value="YES">YES</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="notes" class="form-label">Notes</label>
+                                            <textarea class="form-control" id="notes" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-save"></i> Save Entry
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="validateForm()">
+                                                <i class="bi bi-check-circle"></i> Validate
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h3>Quick Stats</h3>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <th>Today's Discrepancies</th>
+                                            <td id="todayDiscrepancies">0</td>
+                                        </tr>
+                                        <tr>
+                                            <th>This Week's Discrepancies</th>
+                                            <td id="weekDiscrepancies">0</td>
+                                        </tr>
+                                        <tr>
+                                            <th>This Month's Discrepancies</th>
+                                            <td id="monthDiscrepancies">0</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Unresolved Cases</th>
+                                            <td id="unresolvedCases">0</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Total Records</th>
+                                            <td id="totalRecords">0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card mt-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h3>Quick Actions</h3>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-success w-100 mb-2" onclick="saveWeeklyReport()">
+                                    <i class="bi bi-file-earmark-text"></i> Save Weekly Report
+                                </button>
+                                <button class="btn btn-info w-100 mb-2" onclick="saveMonthlyReport()">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Save Monthly Report
+                                </button>
+                                <button class="btn btn-secondary w-100" onclick="exportToCSV()">
+                                    <i class="bi bi-download"></i> Export Current Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3>Recent Discrepancies</h3>
+                                    <div class="input-group" style="width: 300px;">
+                                        <input type="text" id="searchInput" class="form-control" placeholder="Search..." onkeyup="searchData()">
+                                        <button class="btn btn-outline-light" onclick="searchData()">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="filter-section">
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label for="filterBrand" class="form-label">Filter by Brand</label>
+                                            <select class="form-select" id="filterBrand" onchange="applyFilters()">
+                                                <option value="">All Brands</option>
+                                                <!-- Brands will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="filterPicker" class="form-label">Filter by Picker</label>
+                                            <select class="form-select" id="filterPicker" onchange="applyFilters()">
+                                                <option value="">All Pickers</option>
+                                                <!-- Pickers will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="filterResolved" class="form-label">Filter by Resolution</label>
+                                            <select class="form-select" id="filterResolved" onchange="applyFilters()">
+                                                <option value="">All</option>
+                                                <option value="YES">Resolved</option>
+                                                <option value="NO">Unresolved</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="filterDateRange" class="form-label">Date Range</label>
+                                            <select class="form-select" id="filterDateRange" onchange="applyFilters()">
+                                                <option value="">All Dates</option>
+                                                <option value="today">Today</option>
+                                                <option value="week">This Week</option>
+                                                <option value="month">This Month</option>
+                                                <option value="custom">Custom Range</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6" id="customDateRangeContainer" style="display: none;">
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <label for="filterStartDate" class="form-label">Start Date</label>
+                                                    <input type="date" class="form-control" id="filterStartDate" onchange="applyFilters()">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="filterEndDate" class="form-label">End Date</label>
+                                                    <input type="date" class="form-control" id="filterEndDate" onchange="applyFilters()">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>OLPN</th>
+                                                <th>Brand</th>
+                                                <th>Expected</th>
+                                                <th>Short</th>
+                                                <th>Extra</th>
+                                                <th>Picker</th>
+                                                <th>Auditor</th>
+                                                <th>Resolved</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="discrepancyTable">
+                                            <!-- Data will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination justify-content-center" id="pagination">
+                                        <!-- Pagination will be loaded here -->
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trends Analysis Tab -->
+            <div class="tab-pane fade" id="trends" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h3>Discrepancy Trends by Week</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="weeklyTrendChart"></canvas>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="updateChart('weeklyTrendChart', 'week')">
+                                        <i class="bi bi-arrow-repeat"></i> Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h3>Discrepancy Trends by Month</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="monthlyTrendChart"></canvas>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-sm btn-outline-success" onclick="updateChart('monthlyTrendChart', 'month')">
+                                        <i class="bi bi-arrow-repeat"></i> Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h3>Picker Performance</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="pickerPerformanceChart"></canvas>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-sm btn-outline-info" onclick="updatePickerPerformanceChart()">
+                                        <i class="bi bi-arrow-repeat"></i> Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-warning text-dark">
+                                <h3>Brand Analysis</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="brandAnalysisChart"></canvas>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-sm btn-outline-warning" onclick="updateBrandAnalysisChart()">
+                                        <i class="bi bi-arrow-repeat"></i> Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Reports Tab -->
+            <div class="tab-pane fade" id="reports" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h3>Saved Weekly Reports</h3>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Week</th>
+                                            <th>Date Saved</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="weeklyReportsTable">
+                                        <!-- Weekly reports will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h3>Saved Monthly Reports</h3>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Month</th>
+                                            <th>Date Saved</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monthlyReportsTable">
+                                        <!-- Monthly reports will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-pane fade" id="settings" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h3>Application Settings</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="settingsForm">
+                                    <div class="mb-3">
+                                        <label for="autoSaveReports" class="form-label">Auto-save Weekly Reports</label>
+                                        <select class="form-select" id="autoSaveReports">
+                                            <option value="true">Enabled</option>
+                                            <option value="false">Disabled</option>
+                                        </select>
+                                        <div class="form-text">Automatically save weekly reports every Friday</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="recordsPerPage" class="form-label">Records Per Page</label>
+                                        <input type="number" class="form-control" id="recordsPerPage" min="5" max="50" value="10">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="exportLocation" class="form-label">Default Export Location</label>
+                                        <input type="text" class="form-control" id="exportLocation" placeholder="e.g., C:\DispatchReports">
+                                        <div class="form-text">Folder where reports will be saved (must exist)</div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="saveSettings()">
+                                        <i class="bi bi-save"></i> Save Settings
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h3>Brand Management</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Current Brands</label>
+                                    <div id="brandsContainer" class="d-flex flex-wrap">
+                                        <!-- Brands will be loaded here -->
+                                    </div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="newBrandName" placeholder="New brand name">
+                                    <button class="btn btn-success" type="button" onclick="addNewBrand()">
+                                        <i class="bi bi-plus"></i> Add Brand
+                                    </button>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> Brands used in existing records cannot be deleted.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Viewer Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalTitle">Report Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="reportModalBody">
+                    <!-- Report content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="printReport()">Print Report</button>
+                    <button type="button" class="btn btn-success" onclick="exportCurrentReport()">Export Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Discrepancy Record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="editModalBody">
+                    <!-- Edit form will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditedRecord()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Brand Modal -->
+    <div class="modal fade" id="addBrandModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Brand</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modalBrandName" class="form-label">Brand Name</label>
+                        <input type="text" class="form-control" id="modalBrandName">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addBrandFromModal()">Add Brand</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalTitle">Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">
+                    <!-- Confirmation message will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmModalButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        // Global variables
+        let discrepancies = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let recordsPerPage = 10;
+        let currentEditId = null;
+        let weeklyReports = [];
+        let monthlyReports = [];
+        let charts = {};
+        let brands = ['FOSCHINI', 'THE FIX', 'OTHER'];
+        let settings = {
+            autoSaveReports: true,
+            recordsPerPage: 10,
+            exportLocation: ''
+        };
+        let autoSaveInterval = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load settings first
+            loadSettings();
+            
+            // Set default date to today
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Populate week and month dropdowns
+            populateWeekDropdown();
+            populateMonthDropdown();
+            
+            // Load data
+            loadData();
+            loadReports();
+            
+            // Initialize charts
+            initializeCharts();
+            
+            // Update UI
+            updateQuickStats();
+            renderTable();
+            renderBrands();
+            populateFilterDropdowns();
+            
+            // Set up form submission
+            document.getElementById('discrepancyForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveDiscrepancy();
+            });
+            
+            // Set up auto-save if enabled
+            setupAutoSave();
+        });
+
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('discrepancyTrackerSettings');
+            if (savedSettings) {
+                settings = JSON.parse(savedSettings);
+                recordsPerPage = settings.recordsPerPage;
+                
+                // Update UI elements
+                document.getElementById('autoSaveReports').value = settings.autoSaveReports.toString();
+                document.getElementById('recordsPerPage').value = settings.recordsPerPage;
+                document.getElementById('exportLocation').value = settings.exportLocation || '';
+            }
+            
+            // Load brands
+            const savedBrands = localStorage.getItem('discrepancyTrackerBrands');
+            if (savedBrands) {
+                brands = JSON.parse(savedBrands);
+            }
+        }
+
+        function saveSettings() {
+            settings.autoSaveReports = document.getElementById('autoSaveReports').value === 'true';
+            settings.recordsPerPage = parseInt(document.getElementById('recordsPerPage').value) || 10;
+            settings.exportLocation = document.getElementById('exportLocation').value.trim();
+            
+            localStorage.setItem('discrepancyTrackerSettings', JSON.stringify(settings));
+            
+            // Update records per page if changed
+            if (recordsPerPage !== settings.recordsPerPage) {
+                recordsPerPage = settings.recordsPerPage;
+                currentPage = 1;
+                renderTable();
+            }
+            
+            // Restart auto-save if settings changed
+            setupAutoSave();
+            
+            showAlert('Settings saved successfully!', 'success');
+        }
+
+        function setupAutoSave() {
+            // Clear any existing interval
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+            
+            // Set up new interval if auto-save is enabled
+            if (settings.autoSaveReports) {
+                // Check every hour if it's Friday and after 3 PM
+                autoSaveInterval = setInterval(() => {
+                    const now = new Date();
+                    if (now.getDay() === 5 && now.getHours() >= 15) { // Friday, 3 PM or later
+                        saveWeeklyReport(true); // Silent save
+                    }
+                }, 3600000); // 1 hour
+            }
+        }
+
+        function populateWeekDropdown() {
+            const weekSelect = document.getElementById('week');
+            weekSelect.innerHTML = '<option value="">Select Week</option>';
+            
+            // Get current year
+            const year = new Date().getFullYear();
+            
+            // Create 52 weeks
+            for (let i = 1; i <= 52; i++) {
+                const option = document.createElement('option');
+                option.value = `Week ${i}, ${year}`;
+                option.textContent = `Week ${i}, ${year}`;
+                weekSelect.appendChild(option);
+            }
+            
+            // Set current week
+            const currentWeek = getWeekNumber(new Date());
+            weekSelect.value = `Week ${currentWeek}, ${year}`;
+        }
+
+        function populateMonthDropdown() {
+            const monthSelect = document.getElementById('month');
+            monthSelect.innerHTML = '<option value="">Select Month</option>';
+            
+            const months = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+            
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = `${month} ${currentYear}`;
+                option.textContent = `${month} ${currentYear}`;
+                monthSelect.appendChild(option);
+                
+                if (index === currentMonth) {
+                    option.selected = true;
+                }
+            });
+        }
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return weekNo;
+        }
+
+        function loadData() {
+            try {
+                // Load discrepancies
+                const savedData = localStorage.getItem('discrepancyData');
+                discrepancies = savedData ? JSON.parse(savedData) : [];
+                
+                // Update picker and auditor datalists
+                updateDatalists();
+                
+                // Update brand dropdown
+                updateBrandDropdown();
+                
+                filteredData = [...discrepancies];
+                document.getElementById('totalRecords').textContent = discrepancies.length;
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showAlert('Error loading data. Please try refreshing the page.', 'danger');
+            }
+        }
+
+        function loadReports() {
+            try {
+                // Load saved reports
+                const savedWeekly = localStorage.getItem('weeklyReports');
+                weeklyReports = savedWeekly ? JSON.parse(savedWeekly) : [];
+                
+                const savedMonthly = localStorage.getItem('monthlyReports');
+                monthlyReports = savedMonthly ? JSON.parse(savedMonthly) : [];
+                
+                renderReportsTables();
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                showAlert('Error loading reports. Some features may not work correctly.', 'warning');
+            }
+        }
+
+        function updateDatalists() {
+            const pickerList = document.getElementById('pickerList');
+            const auditorList = document.getElementById('auditorList');
+            
+            // Clear existing options
+            pickerList.innerHTML = '';
+            auditorList.innerHTML = '';
+            
+            // Get unique pickers and auditors
+            const pickers = [...new Set(discrepancies.map(d => d.picker))].filter(p => p);
+            const auditors = [...new Set(discrepancies.map(d => d.auditor))].filter(a => a);
+            
+            // Add options to datalists
+            pickers.forEach(picker => {
+                const option = document.createElement('option');
+                option.value = picker;
+                pickerList.appendChild(option);
+            });
+            
+            auditors.forEach(auditor => {
+                const option = document.createElement('option');
+                option.value = auditor;
+                auditorList.appendChild(option);
+            });
+        }
+
+        function updateBrandDropdown() {
+            const brandSelect = document.getElementById('brand');
+            const filterBrandSelect = document.getElementById('filterBrand');
+            
+            // Clear existing options except the first one
+            while (brandSelect.options.length > 1) {
+                brandSelect.remove(1);
+            }
+            
+            while (filterBrandSelect.options.length > 1) {
+                filterBrandSelect.remove(1);
+            }
+            
+            // Add current brands
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option.cloneNode(true));
+                filterBrandSelect.appendChild(option);
+            });
+        }
+
+        function renderBrands() {
+            const container = document.getElementById('brandsContainer');
+            container.innerHTML = '';
+            
+            brands.forEach(brand => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary brand-badge';
+                badge.textContent = brand;
+                
+                // Only add delete button if brand isn't used in any records
+                const isBrandUsed = discrepancies.some(d => d.brand === brand);
+                
+                if (!isBrandUsed && brand !== 'FOSCHINI' && brand !== 'THE FIX' && brand !== 'OTHER') {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-sm btn-danger ms-2';
+                    deleteBtn.innerHTML = '<i class="bi bi-x"></i>';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        confirmDeleteBrand(brand);
+                    };
+                    
+                    badge.appendChild(deleteBtn);
+                }
+                
+                container.appendChild(badge);
+            });
+        }
+
+        function confirmDeleteBrand(brand) {
+            document.getElementById('confirmModalTitle').textContent = 'Delete Brand';
+            document.getElementById('confirmModalBody').innerHTML = `Are you sure you want to delete the brand "${brand}"?`;
+            
+            const confirmBtn = document.getElementById('confirmModalButton');
+            confirmBtn.onclick = () => {
+                deleteBrand(brand);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+                modal.hide();
+            };
+            
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+        }
+
+        function deleteBrand(brand) {
+            brands = brands.filter(b => b !== brand);
+            localStorage.setItem('discrepancyTrackerBrands', JSON.stringify(brands));
+            updateBrandDropdown();
+            renderBrands();
+            showAlert(`Brand "${brand}" deleted successfully`, 'success');
+        }
+
+        function showAddBrandModal() {
+            document.getElementById('modalBrandName').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('addBrandModal'));
+            modal.show();
+        }
+
+        function addBrandFromModal() {
+            const brandName = document.getElementById('modalBrandName').value.trim();
+            if (!brandName) {
+                showAlert('Please enter a brand name', 'warning');
+                return;
+            }
+            
+            if (brands.includes(brandName)) {
+                showAlert('This brand already exists', 'warning');
+                return;
+            }
+            
+            brands.push(brandName);
+            localStorage.setItem('discrepancyTrackerBrands', JSON.stringify(brands));
+            updateBrandDropdown();
+            renderBrands();
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addBrandModal'));
+            modal.hide();
+            
+            showAlert(`Brand "${brandName}" added successfully`, 'success');
+        }
+
+        function addNewBrand() {
+            const brandName = document.getElementById('newBrandName').value.trim();
+            if (!brandName) {
+                showAlert('Please enter a brand name', 'warning');
+                return;
+            }
+            
+            if (brands.includes(brandName)) {
+                showAlert('This brand already exists', 'warning');
+                return;
+            }
+            
+            brands.push(brandName);
+            localStorage.setItem('discrepancyTrackerBrands', JSON.stringify(brands));
+            updateBrandDropdown();
+            renderBrands();
+            
+            document.getElementById('newBrandName').value = '';
+            showAlert(`Brand "${brandName}" added successfully`, 'success');
+        }
+
+        function populateFilterDropdowns() {
+            const pickerSelect = document.getElementById('filterPicker');
+            
+            // Clear existing options except the first one
+            while (pickerSelect.options.length > 1) {
+                pickerSelect.remove(1);
+            }
+            
+            // Get unique pickers
+            const pickers = [...new Set(discrepancies.map(d => d.picker))].filter(p => p);
+            
+            // Add options to filter dropdown
+            pickers.forEach(picker => {
+                const option = document.createElement('option');
+                option.value = picker;
+                option.textContent = picker;
+                pickerSelect.appendChild(option);
+            });
+        }
+
+        function saveDiscrepancy() {
+            try {
+                const form = document.getElementById('discrepancyForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const newId = discrepancies.length > 0 ? Math.max(...discrepancies.map(d => d.id)) + 1 : 1;
+                
+                const newDiscrepancy = {
+                    id: newId,
+                    olpn: document.getElementById('olpn').value.trim(),
+                    brand: document.getElementById('brand').value,
+                    date: document.getElementById('date').value,
+                    week: document.getElementById('week').value,
+                    month: document.getElementById('month').value,
+                    expectedUnits: parseInt(document.getElementById('expectedUnits').value),
+                    shortUnits: parseInt(document.getElementById('shortUnits').value) || 0,
+                    extraUnits: parseInt(document.getElementById('extraUnits').value) || 0,
+                    picker: document.getElementById('picker').value.trim(),
+                    auditor: document.getElementById('auditor').value.trim(),
+                    adjusted: document.getElementById('adjusted').value,
+                    caseResolved: document.getElementById('caseResolved').value,
+                    notes: document.getElementById('notes').value.trim()
+                };
+                
+                // Validate expected units
+                if (newDiscrepancy.expectedUnits <= 0) {
+                    showAlert('Expected units must be greater than 0', 'warning');
+                    return;
+                }
+                
+                discrepancies.push(newDiscrepancy);
+                saveToLocalStorage();
+                
+                clearForm();
+                
+                filteredData = [...discrepancies];
+                updateQuickStats();
+                renderTable();
+                updateDatalists();
+                populateFilterDropdowns();
+                
+                showAlert('Discrepancy record saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving discrepancy:', error);
+                showAlert('Error saving discrepancy. Please check your input and try again.', 'danger');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('discrepancyForm').reset();
+            // Reset date to today
+            document.getElementById('date').valueAsDate = new Date();
+            // Set current week and month
+            populateWeekDropdown();
+            populateMonthDropdown();
+        }
+
+        function validateForm() {
+            const form = document.getElementById('discrepancyForm');
+            if (form.checkValidity()) {
+                showAlert('Form is valid and ready to submit!', 'success');
+            } else {
+                form.reportValidity();
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('discrepancyData', JSON.stringify(discrepancies));
+                document.getElementById('totalRecords').textContent = discrepancies.length;
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showAlert('Error saving data. Your changes may not be persisted.', 'danger');
+            }
+        }
+
+        function saveWeeklyReport(silent = false) {
+            try {
+                const currentWeek = document.getElementById('week').value;
+                if (!currentWeek) {
+                    showAlert('Please select a week first', 'warning');
+                    return;
+                }
+                
+                const weekData = discrepancies.filter(d => d.week === currentWeek);
+                if (weekData.length === 0) {
+                    showAlert('No data found for the selected week', 'warning');
+                    return;
+                }
+                
+                const report = {
+                    id: Date.now(),
+                    period: currentWeek,
+                    dateSaved: new Date().toLocaleDateString(),
+                    timestamp: new Date().getTime(),
+                    data: weekData,
+                    summary: generateReportSummary(weekData, 'week')
+                };
+                
+                // Check if report already exists
+                const existingIndex = weeklyReports.findIndex(r => r.period === currentWeek);
+                if (existingIndex >= 0) {
+                    weeklyReports[existingIndex] = report;
+                } else {
+                    weeklyReports.push(report);
+                }
+                
+                localStorage.setItem('weeklyReports', JSON.stringify(weeklyReports));
+                renderReportsTables();
+                
+                // Save to file if export location is set
+                if (settings.exportLocation) {
+                    saveReportToFile(report, 'weekly');
+                }
+                
+                if (!silent) {
+                    showAlert(`Weekly report for ${currentWeek} saved successfully!`, 'success');
+                }
+            } catch (error) {
+                console.error('Error saving weekly report:', error);
+                showAlert('Error saving weekly report. Please try again.', 'danger');
+            }
+        }
+
+        function saveMonthlyReport() {
+            try {
+                const currentMonth = document.getElementById('month').value;
+                if (!currentMonth) {
+                    showAlert('Please select a month first', 'warning');
+                    return;
+                }
+                
+                const monthData = discrepancies.filter(d => d.month === currentMonth);
+                if (monthData.length === 0) {
+                    showAlert('No data found for the selected month', 'warning');
+                    return;
+                }
+                
+                const report = {
+                    id: Date.now(),
+                    period: currentMonth,
+                    dateSaved: new Date().toLocaleDateString(),
+                    timestamp: new Date().getTime(),
+                    data: monthData,
+                    summary: generateReportSummary(monthData, 'month')
+                };
+                
+                // Check if report already exists
+                const existingIndex = monthlyReports.findIndex(r => r.period === currentMonth);
+                if (existingIndex >= 0) {
+                    monthlyReports[existingIndex] = report;
+                } else {
+                    monthlyReports.push(report);
+                }
+                
+                localStorage.setItem('monthlyReports', JSON.stringify(monthlyReports));
+                renderReportsTables();
+                
+                // Save to file if export location is set
+                if (settings.exportLocation) {
+                    saveReportToFile(report, 'monthly');
+                }
+                
+                showAlert(`Monthly report for ${currentMonth} saved successfully!`, 'success');
+            } catch (error) {
+                console.error('Error saving monthly report:', error);
+                showAlert('Error saving monthly report. Please try again.', 'danger');
+            }
+        }
+
+        function saveReportToFile(report, type) {
+            try {
+                // Create CSV content
+                const headers = [
+                    'Date', 'OLPN', 'Brand', 'Expected Units', 'Short Units', 
+                    'Extra Units', 'Picker', 'Auditor', 'Adjusted', 'Resolved'
+                ];
+                
+                const data = report.data.map(d => [
+                    d.date, d.olpn, d.brand, d.expectedUnits, d.shortUnits, 
+                    d.extraUnits, d.picker, d.auditor, d.adjusted, d.caseResolved
+                ]);
+                
+                const csv = Papa.unparse({
+                    fields: headers,
+                    data: data
+                });
+                
+                // Create filename
+                const filename = `Dispatch_${type}_Report_${report.period.replace(/ /g, '_')}_${new Date().toISOString().slice(0, 10)}.csv`;
+                
+                // Save file using FileSaver.js
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                saveAs(blob, filename);
+                
+                return true;
+            } catch (error) {
+                console.error('Error saving report to file:', error);
+                return false;
+            }
+        }
+
+        function generateReportSummary(data, periodType) {
+            const totalDiscrepancies = data.length;
+            const totalShort = data.reduce((sum, d) => sum + d.shortUnits, 0);
+            const totalExtra = data.reduce((sum, d) => sum + d.extraUnits, 0);
+            const unresolved = data.filter(d => d.caseResolved === 'NO').length;
+            
+            // Group by picker
+            const pickerStats = {};
+            data.forEach(d => {
+                if (!pickerStats[d.picker]) {
+                    pickerStats[d.picker] = { count: 0, short: 0, extra: 0 };
+                }
+                pickerStats[d.picker].count++;
+                pickerStats[d.picker].short += d.shortUnits;
+                pickerStats[d.picker].extra += d.extraUnits;
+            });
+            
+            // Group by brand
+            const brandStats = {};
+            data.forEach(d => {
+                if (!brandStats[d.brand]) {
+                    brandStats[d.brand] = { count: 0, short: 0, extra: 0 };
+                }
+                brandStats[d.brand].count++;
+                brandStats[d.brand].short += d.shortUnits;
+                brandStats[d.brand].extra += d.extraUnits;
+            });
+            
+            return {
+                totalDiscrepancies,
+                totalShort,
+                totalExtra,
+                unresolved,
+                pickerStats,
+                brandStats,
+                periodType
+            };
+        }
+
+        function renderReportsTables() {
+            try {
+                const weeklyTable = document.getElementById('weeklyReportsTable');
+                const monthlyTable = document.getElementById('monthlyReportsTable');
+                
+                weeklyTable.innerHTML = '';
+                monthlyTable.innerHTML = '';
+                
+                // Sort reports by date (newest first)
+                weeklyReports.sort((a, b) => b.timestamp - a.timestamp);
+                monthlyReports.sort((a, b) => b.timestamp - a.timestamp);
+                
+                weeklyReports.forEach(report => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${report.period}</td>
+                        <td>${report.dateSaved}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewReport(${report.id}, 'weekly')">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteReport(${report.id}, 'weekly')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="exportSingleReport(${report.id}, 'weekly')">
+                                <i class="bi bi-download"></i> Export
+                            </button>
+                        </td>
+                    `;
+                    weeklyTable.appendChild(row);
+                });
+                
+                monthlyReports.forEach(report => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${report.period}</td>
+                        <td>${report.dateSaved}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewReport(${report.id}, 'monthly')">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteReport(${report.id}, 'monthly')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="exportSingleReport(${report.id}, 'monthly')">
+                                <i class="bi bi-download"></i> Export
+                            </button>
+                        </td>
+                    `;
+                    monthlyTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error rendering reports tables:', error);
+            }
+        }
+
+        function viewReport(id, type) {
+            try {
+                const reports = type === 'weekly' ? weeklyReports : monthlyReports;
+                const report = reports.find(r => r.id === id);
+                
+                if (!report) return;
+                
+                document.getElementById('reportModalTitle').textContent = 
+                    `${type === 'weekly' ? 'Weekly' : 'Monthly'} Report - ${report.period}`;
+                
+                let reportHTML = `
+                    <h4>Summary</h4>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Total Discrepancies</th>
+                            <td>${report.summary.totalDiscrepancies}</td>
+                        </tr>
+                        <tr>
+                            <th>Total Short Units</th>
+                            <td>${report.summary.totalShort}</td>
+                        </tr>
+                        <tr>
+                            <th>Total Extra Units</th>
+                            <td>${report.summary.totalExtra}</td>
+                        </tr>
+                        <tr>
+                            <th>Unresolved Cases</th>
+                            <td>${report.summary.unresolved}</td>
+                        </tr>
+                    </table>
+                    
+                    <h4 class="mt-4">Top Pickers with Discrepancies</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Picker</th>
+                                <th>Discrepancies</th>
+                                <th>Short Units</th>
+                                <th>Extra Units</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                // Sort pickers by discrepancy count
+                const sortedPickers = Object.entries(report.summary.pickerStats)
+                    .sort((a, b) => b[1].count - a[1].count)
+                    .slice(0, 5); // Show top 5
+                
+                sortedPickers.forEach(([picker, stats]) => {
+                    reportHTML += `
+                        <tr>
+                            <td>${picker}</td>
+                            <td>${stats.count}</td>
+                            <td>${stats.short}</td>
+                            <td>${stats.extra}</td>
+                        </tr>
+                    `;
+                });
+                
+                reportHTML += `
+                        </tbody>
+                    </table>
+                    
+                    <h4 class="mt-4">Brand Analysis</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Brand</th>
+                                <th>Discrepancies</th>
+                                <th>Short Units</th>
+                                <th>Extra Units</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                // Sort brands by discrepancy count
+                const sortedBrands = Object.entries(report.summary.brandStats)
+                    .sort((a, b) => b[1].count - a[1].count);
+                
+                sortedBrands.forEach(([brand, stats]) => {
+                    reportHTML += `
+                        <tr>
+                            <td>${brand}</td>
+                            <td>${stats.count}</td>
+                            <td>${stats.short}</td>
+                            <td>${stats.extra}</td>
+                        </tr>
+                    `;
+                });
+                
+                reportHTML += `
+                        </tbody>
+                    </table>
+                    
+                    <h4 class="mt-4">Discrepancy Details</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>OLPN</th>
+                                    <th>Brand</th>
+                                    <th>Expected</th>
+                                    <th>Short</th>
+                                    <th>Extra</th>
+                                    <th>Picker</th>
+                                    <th>Auditor</th>
+                                    <th>Resolved</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                report.data.forEach(d => {
+                    reportHTML += `
+                        <tr>
+                            <td>${d.date}</td>
+                            <td>${d.olpn}</td>
+                            <td>${d.brand}</td>
+                            <td>${d.expectedUnits}</td>
+                            <td>${d.shortUnits}</td>
+                            <td>${d.extraUnits}</td>
+                            <td>${d.picker}</td>
+                            <td>${d.auditor}</td>
+                            <td>${d.caseResolved}</td>
+                        </tr>
+                    `;
+                });
+                
+                reportHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                document.getElementById('reportModalBody').innerHTML = reportHTML;
+                const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error viewing report:', error);
+                showAlert('Error loading report. Please try again.', 'danger');
+            }
+        }
+
+        function exportSingleReport(id, type) {
+            try {
+                const reports = type === 'weekly' ? weeklyReports : monthlyReports;
+                const report = reports.find(r => r.id === id);
+                
+                if (!report) {
+                    showAlert('Report not found', 'warning');
+                    return;
+                }
+                
+                if (saveReportToFile(report, type)) {
+                    showAlert('Report exported successfully!', 'success');
+                } else {
+                    showAlert('Error exporting report', 'danger');
+                }
+            } catch (error) {
+                console.error('Error exporting single report:', error);
+                showAlert('Error exporting report. Please try again.', 'danger');
+            }
+        }
+
+        function exportCurrentReport() {
+            try {
+                const modalTitle = document.getElementById('reportModalTitle').textContent;
+                const isWeekly = modalTitle.includes('Weekly');
+                const period = modalTitle.split(' - ')[1];
+                
+                const reports = isWeekly ? weeklyReports : monthlyReports;
+                const report = reports.find(r => r.period === period);
+                
+                if (!report) {
+                    showAlert('Report not found', 'warning');
+                    return;
+                }
+                
+                if (saveReportToFile(report, isWeekly ? 'weekly' : 'monthly')) {
+                    showAlert('Report exported successfully!', 'success');
+                } else {
+                    showAlert('Error exporting report', 'danger');
+                }
+            } catch (error) {
+                console.error('Error exporting current report:', error);
+                showAlert('Error exporting report. Please try again.', 'danger');
+            }
+        }
+
+        function deleteReport(id, type) {
+            try {
+                document.getElementById('confirmModalTitle').textContent = 'Delete Report';
+                document.getElementById('confirmModalBody').innerHTML = 'Are you sure you want to delete this report? This action cannot be undone.';
+                
+                const confirmBtn = document.getElementById('confirmModalButton');
+                confirmBtn.onclick = () => {
+                    if (type === 'weekly') {
+                        weeklyReports = weeklyReports.filter(r => r.id !== id);
+                        localStorage.setItem('weeklyReports', JSON.stringify(weeklyReports));
+                    } else {
+                        monthlyReports = monthlyReports.filter(r => r.id !== id);
+                        localStorage.setItem('monthlyReports', JSON.stringify(monthlyReports));
+                    }
+                    
+                    renderReportsTables();
+                    showAlert('Report deleted successfully!', 'success');
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+                    modal.hide();
+                };
+                
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error deleting report:', error);
+                showAlert('Error deleting report. Please try again.', 'danger');
+            }
+        }
+
+        function updateQuickStats() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const currentWeek = document.getElementById('week').value;
+                const currentMonth = document.getElementById('month').value;
+                
+                document.getElementById('todayDiscrepancies').textContent = 
+                    discrepancies.filter(d => d.date === today).length;
+                
+                document.getElementById('weekDiscrepancies').textContent = 
+                    currentWeek ? discrepancies.filter(d => d.week === currentWeek).length : 0;
+                
+                document.getElementById('monthDiscrepancies').textContent = 
+                    currentMonth ? discrepancies.filter(d => d.month === currentMonth).length : 0;
+                
+                document.getElementById('unresolvedCases').textContent = 
+                    discrepancies.filter(d => d.caseResolved === 'NO').length;
+            } catch (error) {
+                console.error('Error updating quick stats:', error);
+            }
+        }
+
+        function renderTable() {
+            try {
+                const tableBody = document.getElementById('discrepancyTable');
+                tableBody.innerHTML = '';
+                
+                if (filteredData.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="10" class="text-center">No records found</td>`;
+                    tableBody.appendChild(row);
+                    document.getElementById('pagination').innerHTML = '';
+                    return;
+                }
+                
+                const startIndex = (currentPage - 1) * recordsPerPage;
+                const endIndex = Math.min(startIndex + recordsPerPage, filteredData.length);
+                
+                for (let i = startIndex; i < endIndex; i++) {
+                    const record = filteredData[i];
+                    const row = document.createElement('tr');
+                    
+                    if (record.shortUnits > 0) {
+                        row.classList.add('short-units');
+                    } else if (record.extraUnits > 0) {
+                        row.classList.add('extra-units');
+                    }
+                    
+                    if (record.caseResolved === 'NO') {
+                        row.classList.add('unresolved');
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${record.date}</td>
+                        <td>${record.olpn}</td>
+                        <td>${record.brand}</td>
+                        <td>${record.expectedUnits}</td>
+                        <td>${record.shortUnits}</td>
+                        <td>${record.extraUnits}</td>
+                        <td>${record.picker}</td>
+                        <td>${record.auditor}</td>
+                        <td>${record.caseResolved}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editRecord(${record.id})">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                }
+                
+                renderPagination();
+            } catch (error) {
+                console.error('Error rendering table:', error);
+                showAlert('Error loading data. Please try refreshing the page.', 'danger');
+            }
+        }
+
+        function renderPagination() {
+            try {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+                
+                const pageCount = Math.ceil(filteredData.length / recordsPerPage);
+                
+                if (pageCount <= 1) return;
+                
+                // Previous button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>`;
+                pagination.appendChild(prevLi);
+                
+                // Page numbers
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(pageCount, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                if (startPage > 1) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item';
+                    li.innerHTML = `<a class="page-link" href="#" onclick="changePage(1)">1</a>`;
+                    pagination.appendChild(li);
+                    
+                    if (startPage > 2) {
+                        const ellipsis = document.createElement('li');
+                        ellipsis.className = 'page-item disabled';
+                        ellipsis.innerHTML = `<span class="page-link">...</span>`;
+                        pagination.appendChild(ellipsis);
+                    }
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+                    pagination.appendChild(li);
+                }
+                
+                if (endPage < pageCount) {
+                    if (endPage < pageCount - 1) {
+                        const ellipsis = document.createElement('li');
+                        ellipsis.className = 'page-item disabled';
+                        ellipsis.innerHTML = `<span class="page-link">...</span>`;
+                        pagination.appendChild(ellipsis);
+                    }
+                    
+                    const li = document.createElement('li');
+                    li.className = 'page-item';
+                    li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${pageCount})">${pageCount}</a>`;
+                    pagination.appendChild(li);
+                }
+                
+                // Next button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === pageCount ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>`;
+                pagination.appendChild(nextLi);
+            } catch (error) {
+                console.error('Error rendering pagination:', error);
+            }
+        }
+
+        function changePage(page) {
+            try {
+                if (page < 1 || page > Math.ceil(filteredData.length / recordsPerPage)) return;
+                
+                currentPage = page;
+                renderTable();
+                
+                // Scroll to top of table
+                document.getElementById('discrepancyTable').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error changing page:', error);
+            }
+        }
+
+        function applyFilters() {
+            try {
+                const brandFilter = document.getElementById('filterBrand').value;
+                const pickerFilter = document.getElementById('filterPicker').value;
+                const resolvedFilter = document.getElementById('filterResolved').value;
+                const dateRangeFilter = document.getElementById('filterDateRange').value;
+                
+                // Show/hide custom date range inputs
+                const customDateContainer = document.getElementById('customDateRangeContainer');
+                customDateContainer.style.display = dateRangeFilter === 'custom' ? 'block' : 'none';
+                
+                filteredData = discrepancies.filter(d => {
+                    // Brand filter
+                    if (brandFilter && d.brand !== brandFilter) return false;
+                    
+                    // Picker filter
+                    if (pickerFilter && d.picker !== pickerFilter) return false;
+                    
+                    // Resolution filter
+                    if (resolvedFilter && d.caseResolved !== resolvedFilter) return false;
+                    
+                    // Date range filter
+                    if (dateRangeFilter) {
+                        const recordDate = new Date(d.date);
+                        
+                        if (dateRangeFilter === 'today') {
+                            const today = new Date().toISOString().split('T')[0];
+                            if (d.date !== today) return false;
+                        } else if (dateRangeFilter === 'week') {
+                            const currentWeek = document.getElementById('week').value;
+                            if (d.week !== currentWeek) return false;
+                        } else if (dateRangeFilter === 'month') {
+                            const currentMonth = document.getElementById('month').value;
+                            if (d.month !== currentMonth) return false;
+                        } else if (dateRangeFilter === 'custom') {
+                            const startDate = document.getElementById('filterStartDate').value;
+                            const endDate = document.getElementById('filterEndDate').value;
+                            
+                            if (startDate && d.date < startDate) return false;
+                            if (endDate && d.date > endDate) return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                currentPage = 1;
+                renderTable();
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                showAlert('Error applying filters. Please try again.', 'danger');
+            }
+        }
+
+        function searchData() {
+            try {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                
+                if (!searchTerm) {
+                    filteredData = [...discrepancies];
+                } else {
+                    filteredData = discrepancies.filter(d => 
+                        (d.olpn && d.olpn.toLowerCase().includes(searchTerm)) ||
+                        (d.brand && d.brand.toLowerCase().includes(searchTerm)) ||
+                        (d.picker && d.picker.toLowerCase().includes(searchTerm)) ||
+                        (d.auditor && d.auditor.toLowerCase().includes(searchTerm)) ||
+                        (d.notes && d.notes.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                currentPage = 1;
+                renderTable();
+            } catch (error) {
+                console.error('Error searching data:', error);
+            }
+        }
+
+        function editRecord(id) {
+            try {
+                currentEditId = id;
+                const record = discrepancies.find(d => d.id === id);
+                
+                if (!record) return;
+                
+                const editForm = `
+                    <form id="editForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="editOlpn" class="form-label">OLPN</label>
+                                <input type="text" class="form-control" id="editOlpn" value="${record.olpn}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editBrand" class="form-label">Brand</label>
+                                <select class="form-select" id="editBrand" required>
+                                    ${brands.map(brand => 
+                                        `<option value="${brand}" ${record.brand === brand ? 'selected' : ''}>${brand}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="editDate" value="${record.date}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editWeek" class="form-label">Week</label>
+                                <input type="text" class="form-control" id="editWeek" value="${record.week}" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editMonth" class="form-label">Month</label>
+                                <input type="text" class="form-control" id="editMonth" value="${record.month}" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editExpectedUnits" class="form-label">Expected Units</label>
+                                <input type="number" class="form-control" id="editExpectedUnits" value="${record.expectedUnits}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editShortUnits" class="form-label">Short Units</label>
+                                <input type="number" class="form-control" id="editShortUnits" value="${record.shortUnits}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editExtraUnits" class="form-label">Extra Units</label>
+                                <input type="number" class="form-control" id="editExtraUnits" value="${record.extraUnits}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editPicker" class="form-label">Picker</label>
+                                <input type="text" class="form-control" id="editPicker" value="${record.picker}" list="pickerList" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editAuditor" class="form-label">Auditor</label>
+                                <input type="text" class="form-control" id="editAuditor" value="${record.auditor}" list="auditorList" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editAdjusted" class="form-label">Adjusted (Y/N)</label>
+                                <select class="form-select" id="editAdjusted">
+                                    <option value="NO" ${record.adjusted === 'NO' ? 'selected' : ''}>NO</option>
+                                    <option value="YES" ${record.adjusted === 'YES' ? 'selected' : ''}>YES</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editCaseResolved" class="form-label">Case Resolved</label>
+                                <select class="form-select" id="editCaseResolved">
+                                    <option value="NO" ${record.caseResolved === 'NO' ? 'selected' : ''}>NO</option>
+                                    <option value="YES" ${record.caseResolved === 'YES' ? 'selected' : ''}>YES</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="editNotes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="editNotes" rows="2">${record.notes || ''}</textarea>
+                            </div>
+                        </div>
+                    </form>
+                `;
+                
+                document.getElementById('editModalBody').innerHTML = editForm;
+                const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                editModal.show();
+            } catch (error) {
+                console.error('Error editing record:', error);
+                showAlert('Error loading record for editing. Please try again.', 'danger');
+            }
+        }
+
+        function saveEditedRecord() {
+            try {
+                if (!currentEditId) return;
+                
+                const index = discrepancies.findIndex(d => d.id === currentEditId);
+                if (index === -1) return;
+                
+                const editForm = document.getElementById('editForm');
+                if (!editForm.checkValidity()) {
+                    editForm.reportValidity();
+                    return;
+                }
+                
+                discrepancies[index] = {
+                    ...discrepancies[index],
+                    olpn: document.getElementById('editOlpn').value.trim(),
+                    brand: document.getElementById('editBrand').value,
+                    date: document.getElementById('editDate').value,
+                    expectedUnits: parseInt(document.getElementById('editExpectedUnits').value),
+                    shortUnits: parseInt(document.getElementById('editShortUnits').value) || 0,
+                    extraUnits: parseInt(document.getElementById('editExtraUnits').value) || 0,
+                    picker: document.getElementById('editPicker').value.trim(),
+                    auditor: document.getElementById('editAuditor').value.trim(),
+                    adjusted: document.getElementById('editAdjusted').value,
+                    caseResolved: document.getElementById('editCaseResolved').value,
+                    notes: document.getElementById('editNotes').value.trim()
+                };
+                
+                saveToLocalStorage();
+                filteredData = [...discrepancies];
+                updateQuickStats();
+                renderTable();
+                updateDatalists();
+                populateFilterDropdowns();
+                
+                const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                editModal.hide();
+                
+                showAlert('Record updated successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving edited record:', error);
+                showAlert('Error saving changes. Please try again.', 'danger');
+            }
+        }
+
+        function deleteRecord(id) {
+            try {
+                document.getElementById('confirmModalTitle').textContent = 'Delete Record';
+                document.getElementById('confirmModalBody').innerHTML = 'Are you sure you want to delete this record? This action cannot be undone.';
+                
+                const confirmBtn = document.getElementById('confirmModalButton');
+                confirmBtn.onclick = () => {
+                    discrepancies = discrepancies.filter(d => d.id !== id);
+                    saveToLocalStorage();
+                    filteredData = [...discrepancies];
+                    updateQuickStats();
+                    renderTable();
+                    updateDatalists();
+                    populateFilterDropdowns();
+                    
+                    showAlert('Record deleted successfully!', 'success');
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+                    modal.hide();
+                };
+                
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error deleting record:', error);
+                showAlert('Error deleting record. Please try again.', 'danger');
+            }
+        }
+
+        function exportToCSV() {
+            try {
+                const headers = [
+                    'Date', 'Week', 'Month', 'OLPN', 'Brand', 'Expected Units', 
+                    'Short Units', 'Extra Units', 'Picker', 'Auditor', 
+                    'Adjusted', 'Case Resolved', 'Notes'
+                ];
+                
+                const data = discrepancies.map(d => [
+                    d.date, d.week, d.month, d.olpn, d.brand, d.expectedUnits, 
+                    d.shortUnits, d.extraUnits, d.picker, d.auditor, 
+                    d.adjusted, d.caseResolved, d.notes
+                ]);
+                
+                const csv = Papa.unparse({
+                    fields: headers,
+                    data: data
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const filename = `Dispatch_Discrepancies_${new Date().toISOString().slice(0, 10)}.csv`;
+                saveAs(blob, filename);
+                
+                showAlert('Data exported successfully!', 'success');
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showAlert('Error exporting data. Please try again.', 'danger');
+            }
+        }
+
+        function printReport() {
+            try {
+                window.print();
+            } catch (error) {
+                console.error('Error printing report:', error);
+                showAlert('Error printing report. Please try again.', 'danger');
+            }
+        }
+
+        function initializeCharts() {
+            try {
+                // Weekly Trend Chart
+                const weeklyCtx = document.getElementById('weeklyTrendChart').getContext('2d');
+                charts.weeklyTrendChart = new Chart(weeklyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Short Units',
+                                data: [],
+                                borderColor: 'rgb(255, 99, 132)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Extra Units',
+                                data: [],
+                                borderColor: 'rgb(54, 162, 235)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Weekly Discrepancy Trends'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Units'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Week'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Monthly Trend Chart
+                const monthlyCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+                charts.monthlyTrendChart = new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Short Units',
+                                data: [],
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                            },
+                            {
+                                label: 'Extra Units',
+                                data: [],
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Monthly Discrepancy Trends'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Units'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Month'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Picker Performance Chart
+                const pickerCtx = document.getElementById('pickerPerformanceChart').getContext('2d');
+                charts.pickerPerformanceChart = new Chart(pickerCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Discrepancies per Picker',
+                                data: [],
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                                pointRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Picker Performance'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                suggestedMin: 0,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Brand Analysis Chart
+                const brandCtx = document.getElementById('brandAnalysisChart').getContext('2d');
+                charts.brandAnalysisChart = new Chart(brandCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Brand Analysis'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Update all charts
+                updateChart('weeklyTrendChart', 'week');
+                updateChart('monthlyTrendChart', 'month');
+                updatePickerPerformanceChart();
+                updateBrandAnalysisChart();
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+                showAlert('Error initializing charts. Some visualizations may not work correctly.', 'warning');
+            }
+        }
+
+        function updateChart(chartId, periodType) {
+            try {
+                const chart = charts[chartId];
+                const periodData = {};
+                
+                // Group data by period (week or month)
+                discrepancies.forEach(d => {
+                    const period = d[periodType];
+                    if (!period) return;
+                    
+                    if (!periodData[period]) {
+                        periodData[period] = { short: 0, extra: 0 };
+                    }
+                    
+                    periodData[period].short += d.shortUnits;
+                    periodData[period].extra += d.extraUnits;
+                });
+                
+                // Sort periods chronologically
+                const sortedPeriods = Object.keys(periodData).sort((a, b) => {
+                    if (periodType === 'week') {
+                        const weekA = parseInt(a.split(' ')[1]);
+                        const weekB = parseInt(b.split(' ')[1]);
+                        return weekA - weekB;
+                    } else {
+                        const months = [
+                            "January", "February", "March", "April", "May", "June",
+                            "July", "August", "September", "October", "November", "December"
+                        ];
+                        const [monthA, yearA] = a.split(' ');
+                        const [monthB, yearB] = b.split(' ');
+                        
+                        if (yearA !== yearB) return parseInt(yearA) - parseInt(yearB);
+                        return months.indexOf(monthA) - months.indexOf(monthB);
+                    }
+                });
+                
+                // Prepare data for chart
+                const shortData = sortedPeriods.map(p => periodData[p].short);
+                const extraData = sortedPeriods.map(p => periodData[p].extra);
+                
+                // Update chart
+                chart.data.labels = sortedPeriods;
+                
+                if (chartId === 'weeklyTrendChart') {
+                    chart.data.datasets[0].data = shortData;
+                    chart.data.datasets[1].data = extraData;
+                } else {
+                    chart.data.datasets[0].data = shortData;
+                    chart.data.datasets[1].data = extraData;
+                }
+                
+                chart.update();
+            } catch (error) {
+                console.error(`Error updating ${chartId}:`, error);
+            }
+        }
+
+        function updatePickerPerformanceChart() {
+            try {
+                const chart = charts.pickerPerformanceChart;
+                const pickerStats = {};
+                
+                // Calculate discrepancies per picker
+                discrepancies.forEach(d => {
+                    if (!pickerStats[d.picker]) {
+                        pickerStats[d.picker] = 0;
+                    }
+                    pickerStats[d.picker]++;
+                });
+                
+                // Sort pickers by discrepancy count
+                const sortedPickers = Object.keys(pickerStats).sort((a, b) => pickerStats[b] - pickerStats[a]);
+                const topPickers = sortedPickers.slice(0, 5); // Show top 5 pickers
+                
+                // Update chart
+                chart.data.labels = topPickers;
+                chart.data.datasets[0].data = topPickers.map(p => pickerStats[p]);
+                chart.data.datasets[0].label = 'Discrepancies per Picker';
+                chart.update();
+            } catch (error) {
+                console.error('Error updating picker performance chart:', error);
+            }
+        }
+
+        function updateBrandAnalysisChart() {
+            try {
+                const chart = charts.brandAnalysisChart;
+                const brandStats = {};
+                
+                // Calculate discrepancies per brand
+                discrepancies.forEach(d => {
+                    if (!brandStats[d.brand]) {
+                        brandStats[d.brand] = 0;
+                    }
+                    brandStats[d.brand]++;
+                });
+                
+                // Sort brands by discrepancy count
+                const sortedBrands = Object.keys(brandStats).sort((a, b) => brandStats[b] - brandStats[a]);
+                const topBrands = sortedBrands.slice(0, 5); // Show top 5 brands
+                
+                // Update chart
+                chart.data.labels = topBrands;
+                chart.data.datasets[0].data = topBrands.map(b => brandStats[b]);
+                chart.update();
+            } catch (error) {
+                console.error('Error updating brand analysis chart:', error);
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Create a container if it doesn't exist
+            let alertContainer = document.getElementById('alertContainer');
+            if (!alertContainer) {
+                alertContainer = document.createElement('div');
+                alertContainer.id = 'alertContainer';
+                alertContainer.style.position = 'fixed';
+                alertContainer.style.top = '20px';
+                alertContainer.style.right = '20px';
+                alertContainer.style.zIndex = '1100';
+                alertContainer.style.maxWidth = '400px';
+                document.body.appendChild(alertContainer);
+            }
+            
+            // Add the alert to the container
+            alertContainer.appendChild(alertDiv);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alertDiv);
+                bsAlert.close();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
