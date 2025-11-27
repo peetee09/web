@@ -127,19 +127,19 @@
         .tile-size-small .app-tile-col,
         .tile-size-small .col-md-4 {
             flex: 0 0 auto;
-            width: 16.666667%;
+            width: calc(100% / 6);
         }
         
         .tile-size-medium .app-tile-col,
         .tile-size-medium .col-md-4 {
             flex: 0 0 auto;
-            width: 20%;
+            width: calc(100% / 5);
         }
         
         .tile-size-large .app-tile-col,
         .tile-size-large .col-md-4 {
             flex: 0 0 auto;
-            width: 25%;
+            width: calc(100% / 4);
         }
         
         @media (max-width: 992px) {
@@ -147,11 +147,11 @@
             .tile-size-small .col-md-4,
             .tile-size-medium .app-tile-col,
             .tile-size-medium .col-md-4 {
-                width: 33.333333%;
+                width: calc(100% / 3);
             }
             .tile-size-large .app-tile-col,
             .tile-size-large .col-md-4 {
-                width: 50%;
+                width: calc(100% / 2);
             }
         }
         
