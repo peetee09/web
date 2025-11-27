@@ -30,41 +30,76 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
+        /* Tile size customization variables */
+        .tile-size-small {
+            --tile-padding: 0.75rem;
+            --tile-icon-size: 1.5rem;
+            --tile-title-size: 0.85rem;
+            --tile-desc-size: 0.7rem;
+            --tile-min-height: 120px;
+            --tile-gap: 0.75rem;
+        }
+        
+        .tile-size-medium {
+            --tile-padding: 1rem;
+            --tile-icon-size: 2rem;
+            --tile-title-size: 0.95rem;
+            --tile-desc-size: 0.8rem;
+            --tile-min-height: 150px;
+            --tile-gap: 1rem;
+        }
+        
+        .tile-size-large {
+            --tile-padding: 1.5rem;
+            --tile-icon-size: 2.5rem;
+            --tile-title-size: 1.1rem;
+            --tile-desc-size: 0.9rem;
+            --tile-min-height: 200px;
+            --tile-gap: 1.25rem;
+        }
+        
+        #appsGrid {
+            gap: var(--tile-gap, 1rem);
+        }
+        
         .app-tile {
             background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 8px;
+            padding: var(--tile-padding, 1rem);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
             height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            min-height: var(--tile-min-height, 150px);
         }
         
         .app-tile:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
         }
         
         .app-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: var(--tile-icon-size, 2rem);
+            margin-bottom: 0.5rem;
             color: var(--primary-color);
         }
         
         .app-title {
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             color: var(--secondary-color);
+            font-size: var(--tile-title-size, 0.95rem);
         }
         
         .app-description {
             color: #6c757d;
-            font-size: 0.9rem;
+            font-size: var(--tile-desc-size, 0.8rem);
             flex-grow: 1;
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
         }
         
         .add-tile {
@@ -75,7 +110,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 200px;
+            min-height: var(--tile-min-height, 150px);
         }
         
         .add-tile:hover {
@@ -83,9 +118,76 @@
         }
         
         .add-icon {
-            font-size: 3rem;
+            font-size: var(--tile-icon-size, 2rem);
             color: var(--primary-color);
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Tile column sizing based on tile size */
+        .tile-size-small .app-tile-col,
+        .tile-size-small .col-md-4 {
+            flex: 0 0 auto;
+            width: 16.666667%;
+        }
+        
+        .tile-size-medium .app-tile-col,
+        .tile-size-medium .col-md-4 {
+            flex: 0 0 auto;
+            width: 20%;
+        }
+        
+        .tile-size-large .app-tile-col,
+        .tile-size-large .col-md-4 {
+            flex: 0 0 auto;
+            width: 25%;
+        }
+        
+        @media (max-width: 992px) {
+            .tile-size-small .app-tile-col,
+            .tile-size-small .col-md-4,
+            .tile-size-medium .app-tile-col,
+            .tile-size-medium .col-md-4 {
+                width: 33.333333%;
+            }
+            .tile-size-large .app-tile-col,
+            .tile-size-large .col-md-4 {
+                width: 50%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .tile-size-small .app-tile-col,
+            .tile-size-small .col-md-4,
+            .tile-size-medium .app-tile-col,
+            .tile-size-medium .col-md-4,
+            .tile-size-large .app-tile-col,
+            .tile-size-large .col-md-4 {
+                width: 100%;
+            }
+        }
+        
+        /* Size selector styling */
+        .size-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .size-selector label {
+            margin-bottom: 0;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .size-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .size-btn.active {
+            background-color: var(--primary-color);
+            color: white;
         }
         
         .modal-content {
@@ -116,14 +218,16 @@
         }
         
         .app-actions {
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             display: flex;
-            gap: 0.5rem;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .action-btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
         }
         
         .category-filter {
@@ -189,15 +293,27 @@
         </div>
         
         <!-- Category Filters -->
-        <div class="category-filter">
-            <span class="badge bg-secondary category-badge active" data-category="all">All Apps</span>
-            <span class="badge bg-primary category-badge" data-category="productivity">Productivity</span>
-            <span class="badge bg-success category-badge" data-category="development">Development</span>
-            <span class="badge bg-info category-badge" data-category="analytics">Analytics</span>
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-8">
+                <div class="category-filter mb-0">
+                    <span class="badge bg-secondary category-badge active" data-category="all">All Apps</span>
+                    <span class="badge bg-primary category-badge" data-category="productivity">Productivity</span>
+                    <span class="badge bg-success category-badge" data-category="development">Development</span>
+                    <span class="badge bg-info category-badge" data-category="analytics">Analytics</span>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="size-selector d-inline-flex">
+                    <label><i class="fas fa-th me-1"></i>Size:</label>
+                    <button class="btn btn-outline-secondary size-btn" data-size="small">S</button>
+                    <button class="btn btn-outline-secondary size-btn active" data-size="medium">M</button>
+                    <button class="btn btn-outline-secondary size-btn" data-size="large">L</button>
+                </div>
+            </div>
         </div>
         
         <!-- Apps Grid -->
-        <div class="row" id="appsGrid">
+        <div class="row tile-size-medium" id="appsGrid">
             <!-- Apps will be dynamically added here -->
         </div>
         
@@ -338,6 +454,7 @@
         const saveAppBtn = document.getElementById('saveAppBtn');
         const searchInput = document.getElementById('searchInput');
         const categoryBadges = document.querySelectorAll('.category-badge');
+        const sizeBtns = document.querySelectorAll('.size-btn');
         const emptyState = document.getElementById('emptyState');
         const exportBtn = document.getElementById('exportBtn');
         const importBtn = document.getElementById('importBtn');
@@ -433,6 +550,18 @@
                     
                     // Filter apps
                     filterApps();
+                });
+            });
+            
+            // Size selector
+            sizeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    sizeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const size = this.getAttribute('data-size');
+                    appsGrid.classList.remove('tile-size-small', 'tile-size-medium', 'tile-size-large');
+                    appsGrid.classList.add('tile-size-' + size);
                 });
             });
             
