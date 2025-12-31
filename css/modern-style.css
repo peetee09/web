@@ -8,6 +8,11 @@
     --light-gray: #f1f5f9;
     --terminal-green: #00ff9d;
     --terminal-blue: #00d9ff;
+    --bg-card: rgba(30, 41, 59, 0.8);
+    --bg-navbar: rgba(30, 41, 59, 0.95);
+    --bg-light-section: rgba(30, 41, 59, 0.5);
+    --border-light: rgba(255, 255, 255, 0.05);
+    --border-medium: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -114,10 +119,10 @@ body {
 }
 
 .service-category {
-    background: rgba(30, 41, 59, 0.8);
+    background: var(--bg-card);
     border-radius: 16px;
     padding: 35px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
@@ -145,7 +150,7 @@ body {
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-medium);
 }
 
 .category-number {
@@ -227,10 +232,10 @@ body {
 }
 
 .service-card {
-    background: rgba(30, 41, 59, 0.8);
+    background: var(--bg-card);
     border-radius: 16px;
     padding: 35px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
@@ -380,9 +385,16 @@ body {
 }
 
 .navbar {
-    background: rgba(30, 41, 59, 0.95) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-navbar) !important;
+    border-bottom: 1px solid var(--border-medium);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari support */
+}
+
+.sticky-top.dark-header {
+    background: var(--bg-navbar);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .navbar-brand {
@@ -399,10 +411,10 @@ body {
 }
 
 .feature-box {
-    background: rgba(30, 41, 59, 0.8);
+    background: var(--bg-card);
     border-radius: 16px;
     padding: 35px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     height: 100%;
@@ -416,8 +428,8 @@ body {
 }
 
 .card {
-    background: rgba(30, 41, 59, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     color: #e2e8f0;
@@ -425,7 +437,7 @@ body {
 
 .card-header {
     background: rgba(0, 102, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-medium);
     color: #fff;
 }
 
@@ -434,7 +446,7 @@ body {
 }
 
 .bg-light {
-    background: rgba(30, 41, 59, 0.5) !important;
+    background: var(--bg-light-section) !important;
 }
 
 .bg-dark, .bg-black {
@@ -578,8 +590,8 @@ a:hover {
 
 /* Form styling for Enquiry form */
 .form-control, .form-select {
-    background: rgba(30, 41, 59, 0.8);
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-card);
+    border: 2px solid var(--border-medium);
     color: #e2e8f0;
     border-radius: 8px;
     padding: 0.75rem 1rem;
@@ -587,7 +599,7 @@ a:hover {
 }
 
 .form-control:focus, .form-select:focus {
-    background: rgba(30, 41, 59, 0.9);
+    background: var(--bg-navbar);
     border-color: var(--primary);
     box-shadow: 0 0 0 0.25rem rgba(0, 102, 255, 0.25);
     color: #e2e8f0;
@@ -607,7 +619,7 @@ a:hover {
 }
 
 .form-check-input {
-    background-color: rgba(30, 41, 59, 0.8);
+    background-color: var(--bg-card);
     border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -635,17 +647,17 @@ a:hover {
 }
 
 .modal-content {
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-navbar);
+    border: 1px solid var(--border-medium);
     color: #e2e8f0;
 }
 
 .modal-header {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: var(--border-medium);
 }
 
 .modal-footer {
-    border-top-color: rgba(255, 255, 255, 0.1);
+    border-top-color: var(--border-medium);
 }
 
 .btn-close {
