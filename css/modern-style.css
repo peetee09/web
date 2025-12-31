@@ -732,6 +732,135 @@ footer a:hover {
     color: rgba(255, 255, 255, 0.9);
 }
 
+/* Software Showcase Animated Tiles */
+.software-showcase {
+    background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(0, 212, 170, 0.05) 100%);
+    overflow: hidden;
+    position: relative;
+}
+
+.software-slider-wrapper {
+    overflow: hidden;
+    position: relative;
+    padding: 20px 0;
+}
+
+.software-slider {
+    display: flex;
+    gap: 30px;
+    animation: scroll-left 40s linear infinite;
+    width: fit-content;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.software-slider:hover {
+    animation-play-state: paused;
+}
+
+.software-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 30px 40px;
+    min-width: 200px;
+    border: 2px solid var(--border-light);
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.software-item:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary);
+    box-shadow: 0 15px 35px rgba(0, 102, 255, 0.3);
+    background: rgba(0, 102, 255, 0.1);
+}
+
+.software-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.software-item:hover .software-icon {
+    transform: rotate(360deg) scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 102, 255, 0.5);
+}
+
+.software-icon i {
+    font-size: 2.5rem;
+    color: #ffffff;
+}
+
+.software-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+}
+
+/* Responsive adjustments for software showcase */
+@media (max-width: 768px) {
+    .software-item {
+        min-width: 160px;
+        padding: 20px 30px;
+    }
+    
+    .software-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .software-icon i {
+        font-size: 2rem;
+    }
+    
+    .software-name {
+        font-size: 0.9rem;
+    }
+    
+    .software-slider {
+        animation: scroll-left 30s linear infinite;
+    }
+}
+
+@media (max-width: 480px) {
+    .software-item {
+        min-width: 140px;
+        padding: 15px 20px;
+    }
+    
+    .software-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .software-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .software-name {
+        font-size: 0.8rem;
 /* WhatsApp Floating Button */
 .whatsapp-float {
     position: fixed;
