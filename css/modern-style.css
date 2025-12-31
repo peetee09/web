@@ -384,21 +384,19 @@ body {
     color: var(--terminal-blue) !important;
 }
 
-.navbar {
-    background: var(--bg-navbar) !important;
-    border-bottom: 1px solid var(--border-medium);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px); /* Safari support */
-}
-
 .sticky-top.dark-header {
     background: var(--bg-navbar);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
+.sticky-top.dark-header .navbar {
+    background: transparent;
+    border-bottom: 1px solid var(--border-medium);
+}
+
 .navbar-brand {
-    color: #fff !important;
+    color: #fff;
     font-weight: 700;
 }
 
