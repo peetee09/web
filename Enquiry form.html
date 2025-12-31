@@ -88,7 +88,7 @@
         }
         .form-label {
             font-weight: 600;
-            color: #495057;
+            color: var(--primary-color);
             margin-bottom: 0.5rem;
         }
         .form-control, .form-select {
@@ -138,11 +138,11 @@
         .step-label {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #6c757d;
+            color: var(--primary-color);
             text-align: center;
         }
         .step.active .step-label {
-            color: var(--primary-color);
+            color: var(--primary-dark);
         }
         .step-indicator::before {
             content: '';
@@ -184,6 +184,15 @@
         }
         .privacy-link:hover {
             text-decoration: underline;
+        }
+        .form-text {
+            color: var(--primary-color);
+        }
+        .form-check-label {
+            color: var(--primary-color);
+        }
+        .text-muted {
+            color: var(--primary-color) !important;
         }
         @media (max-width: 768px) {
             .card-header {
