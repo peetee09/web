@@ -767,7 +767,7 @@ footer a:hover {
 /* Responsive adjustments for WhatsApp button */
 @media (max-width: 768px) {
     .whatsapp-float {
-        bottom: 20px;
+        bottom: 85px;
         right: 20px;
         width: 55px;
         height: 55px;
