@@ -1,5 +1,6 @@
 # Deployment artifacts
 cpanel-deployment.zip
+web-archive.zip
 
 # Node modules (if you add them later)
 node_modules/
