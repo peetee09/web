@@ -184,7 +184,7 @@ After deployment:
 If contacting support, provide:
 - ✅ Zip file used: cpanel-deployment.zip (3.6MB)
 - ✅ Deployment location: public_html/
-- ✅ Expected result: Static website with 17 files
+- ✅ Expected result: Static website with 19 files
 - ✅ Actual result: [describe what you see]
 - ✅ Error messages: [from cPanel or browser console]
 
