@@ -907,4 +907,8 @@ footer a:hover {
         height: 65px;
         font-size: 32px;
     }
+    
+    .whatsapp-float:hover {
+        transform: translateY(-50%) scale(1.1);
+    }
 }
