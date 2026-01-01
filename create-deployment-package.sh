@@ -19,9 +19,9 @@ fi
 # Create zip file excluding only essential files (.git directory, script itself, and output zip)
 echo "Packaging files..."
 zip -r "$OUTPUT_ZIP" . \
-    -x "*.git/*" \
-    -x "*create-deployment-package.sh" \
-    -x "*cpanel-deployment.zip"
+    -x ".git/*" \
+    -x "create-deployment-package.sh" \
+    -x "cpanel-deployment.zip"
 
 if [ $? -eq 0 ]; then
     echo "✓ Deployment package created successfully: $OUTPUT_ZIP"
