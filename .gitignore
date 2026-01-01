@@ -1,0 +1,19 @@
+# Deployment artifacts
+cpanel-deployment.zip
+
+# Node modules (if you add them later)
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
