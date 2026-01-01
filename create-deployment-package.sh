@@ -16,16 +16,12 @@ if [ -f "$OUTPUT_ZIP" ]; then
     rm "$OUTPUT_ZIP"
 fi
 
-# Create zip file excluding .git directory, deployment artifacts, and common development files
+# Create zip file excluding only essential files (.git directory, script itself, and output zip)
 echo "Packaging files..."
 zip -r "$OUTPUT_ZIP" . \
-    -x "*.git*" \
+    -x "*.git/*" \
     -x "*create-deployment-package.sh" \
-    -x "*cpanel-deployment.zip" \
-    -x "*.env*" \
-    -x "*node_modules/*" \
-    -x "*.vscode/*" \
-    -x "*.idea/*"
+    -x "*cpanel-deployment.zip"
 
 if [ $? -eq 0 ]; then
     echo "✓ Deployment package created successfully: $OUTPUT_ZIP"
