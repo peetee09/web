@@ -867,8 +867,9 @@ footer a:hover {
 /* WhatsApp Floating Button */
 .whatsapp-float {
     position: fixed;
-    bottom: 120px;
+    top: 50%;
     right: 30px;
+    transform: translateY(-50%);
     width: 70px;
     height: 70px;
     background-color: #25d366;
@@ -887,7 +888,7 @@ footer a:hover {
 
 .whatsapp-float:hover {
     background-color: #20ba5a;
-    transform: scale(1.1);
+    transform: translateY(-50%) scale(1.1);
     box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
     color: white;
 }
@@ -899,8 +900,9 @@ footer a:hover {
 /* Responsive adjustments for WhatsApp button */
 @media (max-width: 768px) {
     .whatsapp-float {
-        bottom: 100px;
+        top: 50%;
         right: 20px;
+        transform: translateY(-50%);
         width: 65px;
         height: 65px;
         font-size: 32px;
