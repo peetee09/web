@@ -7,7 +7,7 @@ The file `cpanel-deployment.zip` (3.6MB) has been created and is ready to deploy
 ## 📦 What's Inside
 
 The package contains 19 files including:
-- **HTML Pages**: index.html, Services.html, about (1).html, apps-systems.html, and more
+- **HTML Pages**: index.html, Services.html, about.html, apps-systems.html, and more
 - **Styling**: css/modern-style.css
 - **Backend**: process_form.php (for forms), Server.js (optional Node.js)
 - **Images**: Picture1.png, image07.png
@@ -57,7 +57,7 @@ The package contains 19 files including:
      public_html/
      ├── index.html
      ├── Services.html
-     ├── about (1).html
+     ├── about.html
      ├── css/
      │   └── modern-style.css
      ├── process_form.php
@@ -141,11 +141,11 @@ After deployment:
 
 2. **Check Other Pages**: 
    - Visit `/Services.html`
-   - Visit `/about (1).html`
+   - Visit `/about.html`
    - All should load correctly
 
 3. **Check Form**: 
-   - Go to `/Enquiry form.html`
+   - Go to `/enquiry-form.html`
    - Try submitting (should be handled by process_form.php)
 
 4. **Check File Structure in cPanel**:

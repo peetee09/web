@@ -46,7 +46,7 @@ This deployment package is specifically designed to work correctly with cPanel:
 
 ## 📁 What's Inside the Package
 
-- **HTML pages**: index.html, Services.html, about (1).html, apps-systems.html, and more
+- **HTML pages**: index.html, Services.html, about.html, apps-systems.html, and more
 - **Styling**: css/modern-style.css
 - **Backend**: process_form.php (for contact forms)
 - **Optional**: Server.js (Node.js server if needed)
@@ -68,7 +68,7 @@ After extraction, check in cPanel File Manager:
 public_html/
 ├── index.html          ← Should be here, not in a subfolder!
 ├── Services.html
-├── about (1).html
+├── about.html
 ├── css/
 │   └── modern-style.css
 ├── process_form.php

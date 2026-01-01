@@ -6,10 +6,10 @@ This package contains all files needed for your website deployment.
 
 - **index.html** - Homepage
 - **Services.html** - Services page
-- **about (1).html** - About page
+- **about.html** - About page
 - **apps-systems.html** - Apps & Systems page
-- **Enquiry form.html** - Contact/Enquiry form
-- **Style to apply.html** - Style reference
+- **enquiry-form.html** - Contact/enquiry-form
+- **style-guide.html** - Style reference
 - **css/modern-style.css** - Main stylesheet
 - **process_form.php** - Form processing backend
 - **Server.js** - Optional Node.js server
