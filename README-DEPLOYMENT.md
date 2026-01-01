@@ -35,6 +35,3 @@ This package contains all files needed for your website deployment.
 ## 📖 Full Instructions
 
 See **CPANEL-DEPLOYMENT-INSTRUCTIONS.md** for detailed step-by-step guide and troubleshooting.
-
----
-Package created: 2026-01-01

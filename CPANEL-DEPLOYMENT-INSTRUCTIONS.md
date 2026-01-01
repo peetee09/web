@@ -6,7 +6,7 @@ The file `cpanel-deployment.zip` (3.6MB) has been created and is ready to deploy
 
 ## 📦 What's Inside
 
-The package contains 17 files including:
+The package contains 19 files including:
 - **HTML Pages**: index.html, Services.html, about (1).html, apps-systems.html, and more
 - **Styling**: css/modern-style.css
 - **Backend**: process_form.php (for forms), Server.js (optional Node.js)
@@ -151,6 +151,7 @@ After deployment:
 4. **Check File Structure in cPanel**:
    - Files should be at root of `public_html/`
    - Not in a subdirectory
+   - Verify file sizes match (index.html ~30KB, Picture1.png ~3.5MB)
 
 ## 📝 Important Notes
 
@@ -168,7 +169,7 @@ After deployment:
 
 2. **Check File Manager**:
    - Verify all files are present
-   - Check file sizes match (index.html should be ~29KB, Picture1.png ~3.6MB)
+   - Check file sizes match (index.html should be ~30KB, Picture1.png ~3.5MB)
 
 3. **Clear Browser Cache**:
    - Press Ctrl+F5 (Windows) or Cmd+Shift+R (Mac)
@@ -189,7 +190,6 @@ If contacting support, provide:
 
 ---
 
-**Created**: 2026-01-01
 **Package Size**: 3.6MB
-**File Count**: 17 files
+**File Count**: 19 files
 **Deployment Method**: cPanel File Manager

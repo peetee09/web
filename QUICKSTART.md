@@ -31,7 +31,7 @@ The script automatically:
 - Shows package size
 - Ensures no duplicates
 
-**Package size:** ~3.6M
-**File count:** 15 files
+**Package size:** ~3.6MB
+**File count:** 19 files
 
 For detailed instructions, see DEPLOYMENT.md
